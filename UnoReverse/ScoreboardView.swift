@@ -58,13 +58,15 @@ struct ScoreboardView: View {
                     }
                 }
 
-                Section("Tap the winner above...") {
-                    TextField("...and enter their points", value: $points.animation(), format: .number)
-                        .keyboardType(.decimalPad)
-                        .focused($focusedOnPointsField)
+                if !game.isOver {
+                    Section("Tap the winner above...") {
+                        TextField("...and enter their points", value: $points.animation(), format: .number)
+                            .keyboardType(.decimalPad)
+                            .focused($focusedOnPointsField)
 
-                    Button(buttonLabel, systemImage: buttonIcon, action: endRound)
-                        .disabled(cannotProceed)
+                        Button(buttonLabel, systemImage: buttonIcon, action: endRound)
+                            .disabled(cannotProceed)
+                    }
                 }
 
                 if game.isOver {
