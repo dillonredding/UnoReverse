@@ -1,100 +1,74 @@
 import SwiftUI
 
 struct ContentView: View {
-    let darkPallette: [Color] = [.orange, .teal, .purple, .pink]
-    let lightPallette: [Color] = [.red, .yellow, .green, .blue]
+    let colors: [Color] = [.red, .yellow, .green, .blue]
 
-    var isDark: Bool { colorScheme == .dark }
-    var colors: [Color] { isDark ? darkPallette : lightPallette }
-    var primary: Color { isDark ? .black : .white }
-    var shadow: Color { isDark ? .white : .black }
-
-    var icon: String {
-        clockwise
-        ? "arrow.trianglehead.2.clockwise"
-        : "arrow.trianglehead.2.counterclockwise"
-    }
-
-    @State private var colorScheme: ColorScheme
-    @State private var color: Color
     @State private var clockwise = true
-    @State private var angle = 0.0
+    @State private var iconOpacity = 1.0
+    @State private var showingGameSheet = false
+    @State private var game: Game?
 
     var body: some View {
         ZStack {
-            ZStack(alignment: .bottomTrailing) {
-                color.contentShape(Rectangle())
-                    .clipShape(.rect(cornerRadius: 50))
-                    .padding(20)
-                    .background(primary)
+            ZStack(alignment: .bottom) {
+                LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .contentShape(Rectangle())
                     .transition(.opacity)
 
-                Button("", systemImage: "lightbulb.fill", action: toggleColorScheme)
-                    .offset(x: -50, y: -50)
-                    .font(.title)
-                    .foregroundStyle(primary)
+                HStack {
+                    Spacer()
+                    Button("", systemImage: "list.bullet.clipboard", action: openGameSheet)
+                        .font(.title)
+                        .foregroundStyle(.white)
+                }
+                .padding(50)
             }
 
-            Image(systemName: icon)
-                .resizable()
-                .scaledToFit()
-                .padding(.horizontal, 69)
-                .foregroundStyle(primary)
-                .shadow(color: shadow, radius: 5)
-                .rotationEffect(.degrees(angle))
-                .transition(.opacity)
+            Group {
+                // conditionally showing the arrows allows the animation to update when the state changes
+                if clockwise {
+                    SpinningArrows(clockwise: true)
+                } else {
+                    SpinningArrows(clockwise: false)
+                }
+            }
+            .padding(69)
+            .opacity(iconOpacity)
+            .onTapGesture(perform: reverse)
         }
         .ignoresSafeArea()
         .statusBarHidden()
-        .onTapGesture(perform: reverse)
         .onAppear {
-            rotate()
             UIApplication.shared.isIdleTimerDisabled = true
         }
         .onDisappear {
             UIApplication.shared.isIdleTimerDisabled = false
         }
-    }
-
-    init(initialColorScheme: ColorScheme) {
-        colorScheme = initialColorScheme
-        color = initialColorScheme == .dark
-              ? darkPallette.randomElement()!
-              : lightPallette.randomElement()!
+        .sheet(isPresented: $showingGameSheet) {
+            if let game {
+                ScoreboardView(game: game)
+            } else {
+                NewGameView(onCreate: { game = $0 })
+            }
+        }
     }
 
     func reverse() {
-        withAnimation(.linear) {
+        withAnimation(.easeOut(duration: 0.5)) {
+            iconOpacity = 0
+        } completion: {
             clockwise.toggle()
-            color = nextColor()
-            rotate()
+            withAnimation(.easeIn(duration: 0.5)) {
+                iconOpacity = 1
+            }
         }
     }
 
-    func rotate() {
-        angle = 0
-        withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) {
-            angle = clockwise ? 360 : -360
-        }
-    }
-
-    func nextColor() -> Color {
-        if let index = colors.firstIndex(of: color) {
-            return colors[(index + 1) % colors.count]
-        } else {
-            return color
-        }
-    }
-
-    func toggleColorScheme() {
-        let index = colors.firstIndex(of: color)!
-        withAnimation {
-            colorScheme = isDark ? .light : .dark
-            color = colors[index]
-        }
+    func openGameSheet() {
+        showingGameSheet = true
     }
 }
 
 #Preview {
-    ContentView(initialColorScheme: .light)
+    ContentView()
 }
