@@ -23,11 +23,11 @@ struct ScoreboardView: View {
     }
 
     var buttonLabel: String {
-        gameWouldEnd ? "End Game" : "End Round"
+        gameWouldEnd ? "Declare Winner" : "Allot Points"
     }
 
     var buttonIcon: String {
-        gameWouldEnd ? "stop.circle.fill" : "forward.circle.fill"
+        gameWouldEnd ? "crown.fill" : "plus.circle.fill"
     }
 
     var body: some View {
@@ -43,15 +43,9 @@ struct ScoreboardView: View {
                                 .font(.callout.bold())
                             Text(player.name)
                                 .font(.largeTitle.weight(.light))
-                            if player == roundWinner {
+                            if player == roundWinner || player == game.winner {
                                 Spacer()
                                 Image(systemName: "crown.fill")
-                                    .foregroundStyle(.blue)
-                                    .font(.title)
-                            }
-                            if player == game.winner {
-                                Spacer()
-                                Image(systemName: "party.popper.fill")
                                     .foregroundStyle(.blue)
                                     .font(.title)
                             }
