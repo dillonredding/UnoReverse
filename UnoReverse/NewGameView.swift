@@ -9,16 +9,15 @@ struct NewGameView: View {
     @State private var playerNames = [String]()
     @State private var newPlayerName = ""
 
+    let scoreLimits = [100, 250, 500, 750, 1000]
+
     var body: some View {
         NavigationStack {
             Form {
-                Section("Score Limit") {
-                    Stepper(
-                        "\(scoreLimit)",
-                        value: $scoreLimit,
-                        in: 250...1000,
-                        step: 250
-                    )
+                Picker("Score Limit", selection: $scoreLimit) {
+                    ForEach(scoreLimits, id: \.self) {
+                        Text("\($0)")
+                    }
                 }
 
                 Section("Players or Teams") {
