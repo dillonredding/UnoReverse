@@ -83,7 +83,9 @@ struct ScoreboardView: View {
             roundWinner = nil
             points = nil
         } completion: {
-            if !game.isOver {
+            if game.isOver {
+                focusedOnPointsField = false
+            } else {
                 dismiss()
             }
         }
