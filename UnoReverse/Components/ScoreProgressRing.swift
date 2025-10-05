@@ -19,3 +19,8 @@ struct ScoreProgressRing: View {
         }
     }
 }
+
+#Preview {
+    ScoreProgressRing(score: 250, scoreLimit: 500)
+        .font(.largeTitle)
+}
